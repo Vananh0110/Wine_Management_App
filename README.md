@@ -1,7 +1,5 @@
 # Backend Setup Guide
 
-Hướng dẫn cài đặt môi trường backend cho dự án sử dụng Express.
-
 ## Yêu cầu
 
 - Đảm bảo rằng bạn đã cài đặt [Node.js](https://nodejs.org/) và [npm](https://www.npmjs.com/) trên máy.
