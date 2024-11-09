@@ -56,19 +56,26 @@ INSERT INTO Wines (WineCode, WineName, AlcoholPercentage, Age, CountryCode, Imag
 ('W007', 'Chianti Classico', 13.2, 4, 'IT', 'http://localhost:5000/images/Tenuta_di_Arceno_Chianti.jpeg');
 
 -- Các câu lệnh truy vấn filter
-Truy vấn từng loại rượu các quốc gia
-SELECT
-    Countries.CountryName,
-    Wines.WineCode,
-    Wines.WineName,
-    Wines.AlcoholPercentage,
-    Wines.Age
-FROM
-    Wines
-JOIN
-    Countries ON Wines.CountryCode = Countries.CountryCode
-ORDER BY
-    Countries.CountryName;
+Truy vấn từng loại rượu quốc gia
+ `
+      SELECT
+          Countries.CountryName,
+          Wines.WineCode,
+          Wines.WineName,
+          Wines.AlcoholPercentage,
+          Wines.Age,
+          Wines.Image
+      FROM
+          Wines
+      JOIN
+          Countries ON Wines.CountryCode = Countries.CountryCode
+      WHERE
+          Countries.CountryName = ?
+      ORDER BY
+          Countries.CountryName
+      `,
+      [country_name]
+
 
 Truy vấn tìm loại rượu có nồng độ cồn > 5 độ và sản xuất ở pháp
 Cách 1: Làm đầy đủ join bảng lấy country name
