@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, Image } from 'react-native';
 import { Appbar, Card, ActivityIndicator, Searchbar } from 'react-native-paper';
 import styles from '../assets/styles/styles';
 import axios from '../assets/api/axios';
@@ -59,16 +59,12 @@ function Home() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator animating={true} size="large" color="#62D2A2" />
+        <ActivityIndicator animating={true} size="large" color="#1FAB89" />
       </View>
     );
   }
 
   return (
-    <>
-      {/* <Appbar.Header style={{ backgroundColor: '#62D2A2' }}>
-      </Appbar.Header> */}
-
       <View style={styles.mainContainer}>
         <Searchbar
           placeholder="Search by name, country, age, ..."
@@ -76,7 +72,7 @@ function Home() {
           value={searchQuery}
           style={[styles.searchbar, { backgroundColor: '#D7FBE8' }]}
           placeholderTextColor="gray"
-          selectionColor="#62D2A2" 
+          selectionColor="#62D2A2"
         />
 
         <FlatList
@@ -88,7 +84,6 @@ function Home() {
           showsVerticalScrollIndicator={false}
         />
       </View>
-    </>
   );
 }
 
