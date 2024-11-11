@@ -73,6 +73,7 @@ function Home() {
           style={[styles.searchbar, { backgroundColor: '#D7FBE8' }]}
           placeholderTextColor="gray"
           selectionColor="#62D2A2"
+          inputStyle={styles.searchbarInput}
         />
 
         <FlatList

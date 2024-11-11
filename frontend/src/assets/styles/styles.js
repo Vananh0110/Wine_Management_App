@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   titleStyle: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#00000',
     fontWeight: 'bold'
   },
@@ -41,12 +41,12 @@ const styles = StyleSheet.create({
   },
   wineName: {
     fontWeight: '900',
-    fontSize: 16,
+    fontSize: 14,
     marginBottom: 6,
     marginTop: 3,
   },
   infoText: {
-    fontSize: 14,
+    fontSize: 12,
     marginBottom: 4,
   },
   alcohol: {
@@ -82,7 +82,10 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     backgroundColor: 'white',
-    padding: 20,
+    paddingTop: 5,
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 20,
     margin: 20,
     borderRadius: 8,
   },
@@ -93,17 +96,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-  },
-  closeIcon: {
-    marginRight: -10,
   },
   label: {
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 5,
-    color: '#333', // Màu sắc của nhãn
+    color: '#333',
   },
   input: {
     height: 40,
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     marginTop: 10,
-    backgroundColor: '#62D2A2',
+    backgroundColor: '#1FAB89',
   },
   tableContainer: {   
     marginTop: 10,             
@@ -141,6 +141,34 @@ const styles = StyleSheet.create({
     shadowRadius: 4,             
     backgroundColor: '#fff',  
   },
+  modalHeader2: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  modalContent: {
+    borderWidth:0.5, 
+    padding: 10,
+    borderRadius: 6,
+    borderColor: '#C1C1C1',
+    flexDirection: 'column',
+    gap: 8,
+  },
+  textTitle: {
+    fontWeight: 'bold',
+    marginRight: 10,
+  },
+  modalButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 10,
+    marginTop: 20,
+  },
+  modalDelete: {
+    paddingTop: 15,
+  }
+  
 });
 
 export default styles;
