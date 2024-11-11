@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
   titleStyle: {
     fontSize: 16,
     color: '#00000',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   loadingContainer: {
     flex: 1,
@@ -63,8 +63,7 @@ const styles = StyleSheet.create({
   },
   searchbar2: {
     backgroundColor: '#D7FBE8',
-    transform: [{ scale: 0.85 }]
-    
+    transform: [{ scale: 0.85 }],
   },
   animatedSearchBar: {
     flex: 1,
@@ -126,20 +125,20 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   saveButton: {
-    marginTop: 10,
+    marginTop: 60,
     backgroundColor: '#1FAB89',
   },
-  tableContainer: {   
-    marginTop: 10,             
-    borderWidth: 1,                
-    borderColor: '#ddd',          
-    borderRadius: 8,    
-    elevation: 3,                 
-    shadowColor: '#000',           
-    shadowOffset: { width: 0, height: 2 }, 
-    shadowOpacity: 0.2,           
-    shadowRadius: 4,             
-    backgroundColor: '#fff',  
+  tableContainer: {
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    backgroundColor: '#fff',
   },
   modalHeader2: {
     flexDirection: 'row',
@@ -147,7 +146,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    borderWidth:0.5, 
+    borderWidth: 0.5,
     padding: 10,
     borderRadius: 6,
     borderColor: '#C1C1C1',
@@ -167,8 +166,21 @@ const styles = StyleSheet.create({
   },
   modalDelete: {
     paddingTop: 15,
+  },
+  modalEditContainer: {
+    backgroundColor: '#FFFFFF',
+    margin: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
+    paddingLeft: 20,
+    paddingRight: 20,
+    borderRadius: 8
+  },
+  picker: {
+    borderColor: '#C1C1C1',
+    borderRadius: 6,
+    padding: 10,
   }
-  
 });
 
 export default styles;

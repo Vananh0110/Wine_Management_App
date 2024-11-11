@@ -344,20 +344,23 @@ function Country() {
             <Text>Are you sure you want to delete this country?</Text>
 
             <View style={styles.modalButton}>
-              <Button
-                buttonColor="#C1C1C1"
-                textColor="#FFFFFF"
-                onPress={() => setIsDeleteModalVisible(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                buttonColor="red"
-                textColor="#FFFFFF"
-                onPress={deleteCountry}
-              >
-                Confirm
-              </Button>
+            <Button
+              mode="contained"
+              onPress={deleteCountry}
+              buttonColor="red"
+              textColor="#FFFFFF"
+              style={styles.deleteButton}
+            >
+              Yes, Delete
+            </Button>
+            <Button
+              mode="outlined"
+              onPress={() => setIsDeleteModalVisible(false)}
+              style={styles.cancelButton}
+              textColor="#000000"
+            >
+              Cancel
+            </Button>
             </View>
           </View>
         </Modal>
