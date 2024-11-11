@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Animated, TouchableOpacity } from 'react-native';
-import { DataTable, ActivityIndicator, Searchbar, IconButton, Button } from 'react-native-paper';
+import { View, Text, Animated, ScrollView } from 'react-native';
+import {
+  DataTable,
+  ActivityIndicator,
+  Searchbar,
+  IconButton,
+  Button,
+} from 'react-native-paper';
 import styles from '../assets/styles/styles';
 import axios from '../assets/api/axios';
+import AddCountryModal from './AddCountryModal';
 
 function Country() {
   const [countries, setCountries] = useState([]);
@@ -11,7 +18,18 @@ function Country() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortAscending, setSortAscending] = useState(true);
   const [isSearchBarVisible, setIsSearchBarVisible] = useState(false);
-  const searchBarWidth = useState(new Animated.Value(0))[0]; // Width for search bar animation
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [newCountry, setNewCountry] = useState({
+    code: '',
+    name: '',
+    description: '',
+  });
+  const searchBarWidth = useState(new Animated.Value(0))[0];
+  const [page, setPage] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
+
+  const from = page * itemsPerPage;
+  const to = Math.min((page + 1) * itemsPerPage, filteredCountries.length);
 
   const fetchCountries = async () => {
     try {
@@ -42,9 +60,12 @@ function Country() {
 
   const handleSearch = (query) => {
     setSearchQuery(query);
+
     if (query) {
-      const filtered = countries.filter((country) =>
-        country.CountryName.toLowerCase().includes(query.toLowerCase())
+      const filtered = countries.filter(
+        (country) =>
+          country.CountryName.toLowerCase().includes(query.toLowerCase()) ||
+          country.CountryCode.toLowerCase().includes(query.toLowerCase())
       );
       setFilteredCountries(filtered);
     } else {
@@ -77,54 +98,85 @@ function Country() {
     );
   }
 
+  const addCountry = async () => {
+    try {
+      const response = await axios.post('/insert-country', {
+        country_code: newCountry.code,
+        country_name: newCountry.name,
+        country_description: newCountry.description,
+      });
+
+      if (response.status === 200) {
+        const updatedCountries = [
+          ...countries,
+          {
+            CountryCode: newCountry.code,
+            CountryName: newCountry.name,
+            Description: newCountry.description,
+          },
+        ];
+        setCountries(updatedCountries);
+        setFilteredCountries(updatedCountries);
+        setNewCountry({ code: '', name: '', description: '' });
+        setIsModalVisible(false);
+        console.log('Country added successfully');
+      }
+    } catch (error) {
+      console.error('Error adding country:', error);
+    }
+  };
+
   return (
     <View style={styles.mainContainer}>
-      {/* Header with Search Icon and Add Country Button */}
       <View style={styles.headerContainer}>
+        <Animated.View style={styles.animatedSearchBar}>
+          {isSearchBarVisible && (
+            <Searchbar
+              placeholder="Search by code, name"
+              value={searchQuery}
+              onChangeText={handleSearch}
+              inputStyle={styles.searchbarInput}
+              style={styles.searchbar2}
+              contentStyle={styles.searchbarContent}
+              placeholderTextColor="gray"
+              selectionColor="#62D2A2"
+              icon={() => null}
+            />
+          )}
+        </Animated.View>
         <IconButton
           icon="magnify"
           size={24}
           onPress={toggleSearchBar}
           style={styles.searchIcon}
         />
-
-        <Animated.View style={[styles.animatedSearchBar, { width: searchBarWidth }]}>
-          {isSearchBarVisible && (
-            <Searchbar
-              placeholder="Search by Country Name"
-              value={searchQuery}
-              onChangeText={handleSearch}
-              style={styles.searchbar}
-              placeholderTextColor="gray"
-              selectionColor="#62D2A2"
-            />
-          )}
-        </Animated.View>
-
-        <Button
-          mode="contained"
-          onPress={() => console.log('Add Country')}
+        <IconButton
+          icon="plus"
+          size={24}
+          onPress={() => setIsModalVisible(true)}
           style={styles.addButton}
-        >
-          Add Country
-        </Button>
+        />
       </View>
-
-      {/* DataTable to display the list of countries */}
+      <AddCountryModal
+        visible={isModalVisible}
+        onDismiss={() => setIsModalVisible(false)}
+        onSave={addCountry}
+        newCountry={newCountry}
+        setNewCountry={setNewCountry}
+      />
       <View style={styles.tableContainer}>
         <DataTable>
           <DataTable.Header>
             <DataTable.Title style={{ flex: 0.5 }}>#</DataTable.Title>
-            <DataTable.Title style={{ flex: 2 }} onPress={handleSort}>
-              Code {sortAscending ? '↑' : '↓'}
-            </DataTable.Title>
+            <DataTable.Title style={{ flex: 2 }}>Code</DataTable.Title>
             <DataTable.Title style={{ flex: 2 }}>Name</DataTable.Title>
             <DataTable.Title style={{ flex: 4 }}>Description</DataTable.Title>
           </DataTable.Header>
-
-          {filteredCountries.map((country, index) => (
+          {filteredCountries.slice(from, to).map((country, index) => (
             <DataTable.Row key={country.CountryCode}>
-              <DataTable.Cell style={{ flex: 0.5 }}>{index + 1}</DataTable.Cell>
+              <DataTable.Cell style={{ flex: 0.5 }}>
+                {index + 1 + from}
+              </DataTable.Cell>
               <DataTable.Cell style={{ flex: 2 }}>
                 <Text>{country.CountryCode}</Text>
               </DataTable.Cell>
@@ -136,6 +188,16 @@ function Country() {
               </DataTable.Cell>
             </DataTable.Row>
           ))}
+          <DataTable.Pagination
+            page={page}
+            numberOfPages={Math.ceil(filteredCountries.length / itemsPerPage)}
+            onPageChange={(newPage) => setPage(newPage)}
+            label={`${from + 1}-${to} of ${filteredCountries.length}`}
+            showFastPaginationControls
+            itemsPerPage={itemsPerPage}
+            setItemsPerPage={setItemsPerPage}
+            optionsLabel={'Rows per page'}
+          />
         </DataTable>
       </View>
     </View>

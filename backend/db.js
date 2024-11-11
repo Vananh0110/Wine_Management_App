@@ -6,7 +6,7 @@ const connection = mysql
     user: "root",
     password: "011002",
     database: "wine_management_db",
-    // port: 3360
+    port: 3360
   })
   .promise();
 
