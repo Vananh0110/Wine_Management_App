@@ -12,7 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 function HomeScreen() {
   const [index, setIndex] = useState(0);
   const [routes] = useState([
-    { key: 'home', title: 'Home', icon: 'home' },
+    { key: 'wine', title: 'Wine', icon: 'bottle-wine' },
     { key: 'country', title: 'Country', icon: 'flag' },
     { key: 'search', title: 'Search', icon: 'magnify' },
   ]);
@@ -22,7 +22,7 @@ function HomeScreen() {
 
   const renderScene = ({ route }) => {
     switch (route.key) {
-      case 'home':
+      case 'wine':
         return <Home />;
       case 'country':
         return <Country />;
@@ -44,7 +44,7 @@ function HomeScreen() {
       <Appbar.Content
             title={appBarTitle}
             titleStyle={{
-              fontSize: 20,
+              fontSize: 18,
               textAlign: 'center',
               color: '#000000',
               fontWeight: 'bold',

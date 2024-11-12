@@ -13,7 +13,7 @@ router.delete("/delete-country", contriesController.deleteCountry);
 router.get("/get-wines", winesController.getWines);
 // Route sử dụng middleware
 router.post("/insert-wine", upload.single("image"), winesController.insertWine);
-router.put("/update-wine", upload.single("image"), winesController.updateWine);
+router.put("/update-wine", winesController.updateWine);
 router.delete("/delete-wine", winesController.deleteWine);
 
 // filter theo tên nước nhập full

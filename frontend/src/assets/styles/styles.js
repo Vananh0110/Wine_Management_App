@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   titleStyle: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#00000',
     fontWeight: 'bold',
   },
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   },
   searchbar2: {
     backgroundColor: '#D7FBE8',
-    transform: [{ scale: 0.85 }],
+    transform: [{ scale: 0.9 }],
   },
   animatedSearchBar: {
     flex: 1,
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1FAB89',
   },
   tableContainer: {
-    marginTop: 10,
+    marginTop: 30,
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 8,
@@ -177,10 +177,73 @@ const styles = StyleSheet.create({
     borderRadius: 8
   },
   picker: {
-    borderColor: '#C1C1C1',
+    borderWidth: 1,
+    borderColor: '#000000',
     borderRadius: 6,
     padding: 10,
-  }
+  },
+  fab: {
+    position: 'absolute',
+    left: 20,
+    bottom: 16,
+    backgroundColor: '#1FAB89',
+  },
+  formContainer: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#ffffff',
+  },
+  formTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    marginTop: 10,
+    textAlign: 'center',
+    color: '#333',
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 5,
+    color: '#666',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 15,
+    backgroundColor: '#f9f9f9',
+  },
+  picker: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginBottom: 15,
+    borderRadius: 5,
+    backgroundColor: '#f9f9f9',
+  },
+  imagePickerButton: {
+    padding: 10,
+    backgroundColor: '#1FAB89',
+    borderRadius: 5,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  imagePickerText: {
+    color: '#ffffff',
+    fontSize: 16,
+  },
+  imagePreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 5,
+    marginBottom: 15,
+    alignSelf: 'center',
+  },
+  saveFormButton: {
+    marginTop: 20,
+    backgroundColor: '#1FAB89',
+  },
 });
 
 export default styles;

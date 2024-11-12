@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, TextInput } from 'react-native';
+import { View, Text, TextInput, Image, Alert, FlatList } from 'react-native';
 import {
   Card,
   ActivityIndicator,
@@ -8,10 +8,12 @@ import {
   Portal,
   Modal,
   Button,
+  FAB,
 } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import styles from '../assets/styles/styles';
 import axios from '../assets/api/axios';
+import * as ImagePicker from 'expo-image-picker';
 
 function Home() {
   const [wineData, setWineData] = useState([]);
@@ -21,13 +23,21 @@ function Home() {
   const [selectedWine, setSelectedWine] = useState(null);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isAddWineModalVisible, setIsAddWineModalVisible] = useState(false);
   const [countryList, setCountryList] = useState([]);
+  const [newWineData, setNewWineData] = useState({
+    WineCode: '',
+    WineName: '',
+    AlcoholPercentage: '',
+    Age: '',
+    CountryCode: '',
+  });
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const fetchWineData = async () => {
     try {
       const response = await axios.get('/get-wines');
       setWineData(response.data.results);
-      console.log(response.data.results);
       setFilteredData(response.data.results);
       setLoading(false);
     } catch (error) {
@@ -66,15 +76,58 @@ function Home() {
     }
   };
 
-  const handleEdit = (wine) => {
-    setSelectedWine(wine);
-    console.log(wine);
-    setIsEditModalVisible(true);
+  const handleSave = async () => {
+    if (
+      !newWineData.WineCode ||
+      !newWineData.WineName ||
+      !newWineData.AlcoholPercentage ||
+      !newWineData.Age ||
+      !newWineData.CountryCode ||
+      !selectedImage
+    ) {
+      Alert.alert('Error', 'All fields are required');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const imageResponse = await fetch(selectedImage.uri);
+      const blob = await imageResponse.blob();
+
+      const formData = new FormData();
+      formData.append('wine_code', newWineData.WineCode);
+      formData.append('wine_name', newWineData.WineName);
+      formData.append('alcohol_percentage', newWineData.AlcoholPercentage);
+      formData.append('age', newWineData.Age);
+      formData.append('country_code', newWineData.CountryCode);
+      formData.append('image', blob, selectedImage.uri.split('/').pop());
+
+      const uploadResponse = await fetch('http://localhost:5000/insert-wine', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await uploadResponse.json();
+
+      if (uploadResponse.ok) {
+        Alert.alert('Success', 'Wine added successfully');
+        setIsAddWineModalVisible(false);
+        fetchWineData();
+      } else {
+        console.error('Error:', result);
+        Alert.alert('Error', result.message || 'Could not add wine');
+      }
+    } catch (error) {
+      console.error('Error adding wine:', error);
+      Alert.alert('Error', 'Could not add wine');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDelete = (wine) => {
+  const handleEdit = (wine) => {
     setSelectedWine(wine);
-    setIsDeleteModalVisible(true);
+    setIsEditModalVisible(true);
   };
 
   const saveEdit = async () => {
@@ -93,6 +146,11 @@ function Home() {
     }
   };
 
+  const handleDelete = (wine) => {
+    setSelectedWine(wine);
+    setIsDeleteModalVisible(true);
+  };
+
   const confirmDelete = async () => {
     try {
       await axios.delete('/delete-wine', {
@@ -107,6 +165,23 @@ function Home() {
       setIsDeleteModalVisible(false);
     } catch (error) {
       console.error('Error deleting wine:', error);
+    }
+  };
+
+  const handleImagePicker = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const image = result.assets[0];
+      setSelectedImage({
+        uri: image.uri,
+        name: image.uri.split('/').pop(),
+        type: image.type || 'image/jpeg',
+      });
     }
   };
 
@@ -265,6 +340,99 @@ function Home() {
           </Picker>
           <Button mode="contained" onPress={saveEdit} style={styles.saveButton}>
             Save Changes
+          </Button>
+        </Modal>
+      </Portal>
+
+      <FAB
+        style={styles.fab}
+        icon="plus"
+        onPress={() => setIsAddWineModalVisible(true)}
+        color="white"
+      />
+
+      {/* Add Wine Modal */}
+      <Portal>
+        <Modal
+          visible={isAddWineModalVisible}
+          onDismiss={() => setIsAddWineModalVisible(false)}
+          contentContainerStyle={styles.modalContainer}
+        >
+          <Text style={styles.formTitle}>Add New Wine</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter wine code"
+            value={newWineData.WineCode}
+            onChangeText={(text) =>
+              setNewWineData((prev) => ({ ...prev, WineCode: text }))
+            }
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Enter wine name"
+            value={newWineData.WineName}
+            onChangeText={(text) =>
+              setNewWineData((prev) => ({ ...prev, WineName: text }))
+            }
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Enter alcohol percentage"
+            value={newWineData.AlcoholPercentage}
+            keyboardType="numeric"
+            onChangeText={(text) =>
+              setNewWineData((prev) => ({ ...prev, AlcoholPercentage: text }))
+            }
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Enter age"
+            value={newWineData.Age}
+            keyboardType="numeric"
+            onChangeText={(text) =>
+              setNewWineData((prev) => ({ ...prev, Age: text }))
+            }
+          />
+          <Picker
+            selectedValue={newWineData.CountryCode}
+            onValueChange={(value) =>
+              setNewWineData((prev) => ({ ...prev, CountryCode: value }))
+            }
+            style={styles.picker}
+          >
+            <Picker.Item label="Select Country" value="" />
+            {countryList.map((country) => (
+              <Picker.Item
+                label={`${country.CountryCode} - ${country.CountryName}`}
+                value={country.CountryCode}
+                key={country.CountryCode}
+              />
+            ))}
+          </Picker>
+          <Button
+            mode="outlined"
+            icon="camera"
+            textColor="black"
+            onPress={handleImagePicker}
+            style={{
+              borderColor: '#1FAB89',
+              borderWidth: 1,
+            }}
+          >
+            Choose Image
+          </Button>
+          {selectedImage && (
+            <Image
+              source={{ uri: selectedImage.uri }}
+              style={styles.imagePreview}
+            />
+          )}
+          <Button
+            mode="contained"
+            onPress={handleSave}
+            style={styles.saveFormButton}
+          >
+            {loading ? <ActivityIndicator animating={true} /> : 'Save Wine'}
           </Button>
         </Modal>
       </Portal>
