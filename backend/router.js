@@ -17,7 +17,7 @@ router.put("/update-wine", upload.single("image"), winesController.updateWine);
 router.delete("/delete-wine", winesController.deleteWine);
 
 // filter theo tên nước nhập full
-router.get("/filter-wines-by-country", filterController.getWinesByCountry);
+router.get("/filter-wines-by-country/:country_name", filterController.getWinesByCountry);
 //filter theo tên nước nhập 1 phần
 router.get(
   "/filter-by-name-prefix",
@@ -30,7 +30,7 @@ router.get(
 );
 //filter theo độ rượu tự chọn và tên nước mặc định là Pháp
 router.get(
-  "/filter-wines-by-alcohol-percentage",
+  "/filter-wines-by-alcohol-percentage/:country_name/:alcohol_percentage",
   filterController.getWinesByAlcoholPercentage
 );
 //filter theo độ rượu tự chọn và tên nước tự chọn

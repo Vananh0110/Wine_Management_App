@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 
 const getWinesByCountry = async (req, res) => {
-  const country_name = req.body.country_name;
+  const country_name = req.params.country_name;
 
   try {
     const [results, fields] = await connection.query(
@@ -28,9 +28,10 @@ const getWinesByCountry = async (req, res) => {
       [country_name]
     );
 
-    console.log(fields); // Fields contain metadata about the results, if available
+    console.log(fields);
     res.status(200).json({ message: "get successfully", results: results });
   } catch (err) {
+    console.log(req.params);
     console.log(err);
     res.status(500).json({ message: "get failed", error: err });
   }
@@ -98,7 +99,8 @@ const getWinesByAlcoholPercentageDefault = async (req, res) => {
 };
 
 const getWinesByAlcoholPercentage = async (req, res) => {
-  const alcohol_percentage = req.body.alcohol_percentage;
+  const alcohol_percentage = req.params.alcohol_percentage;
+  const country_name = req.params.country_name;
   try {
     const [results, fields] = await connection.query(
       `
@@ -115,9 +117,9 @@ const getWinesByAlcoholPercentage = async (req, res) => {
       Countries ON Wines.CountryCode = Countries.CountryCode
     WHERE
       Wines.AlcoholPercentage > ?
-      AND Countries.CountryName = 'France';
+      AND Countries.CountryName = ?;
       `,
-      [alcohol_percentage]
+      [alcohol_percentage, country_name]
     );
 
     res.status(200).json({ message: "get successfully", results: results });

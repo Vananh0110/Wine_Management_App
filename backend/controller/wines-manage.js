@@ -40,6 +40,10 @@ const insertWine = async (req, res) => {
 
   var imagePath = req.file ? req.file.filename : null;
 
+  console.log('Received Wine Data:', { wine_code, wine_name, alcohol_percentage, age, country_code });
+  console.log('Received Image Path:', imagePath);
+  console.log('Full File Data:', req.file);
+
   // Kiểm tra nếu bất kỳ trường nào bị thiếu
   if (
     !wine_code ||
