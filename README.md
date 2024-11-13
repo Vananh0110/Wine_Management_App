@@ -6,6 +6,10 @@ Dự án này gồm 2 phần chính: **Frontend** (sử dụng React Native - Ex
 - **Node.js**: Tải từ [Node.js](https://nodejs.org/)
 - **MySQL**: Tải [MySQL Community Server](https://dev.mysql.com/downloads/mysql/) và [MySQL Workbench](https://dev.mysql.com/downloads/workbench/)
 - **Android Studio**: Tải từ [Android Studio](https://developer.android.com/studio) và tạo máy ảo android
+-  **Expo CLI**: Để cài đặt Expo CLI, chạy lệnh:
+  ```bash
+  npm install -g expo-cli
+```
   
 ## Chạy dự án
 
