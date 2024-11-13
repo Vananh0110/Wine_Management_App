@@ -4,8 +4,8 @@ Dự án này gồm 2 phần chính: **Frontend** (sử dụng React Native - Ex
 ## Yêu cầu cài đặt
 Để có thể chạy được dự án, bạn cần cài đặt:
 - **Node.js**: Tải từ [Node.js](https://nodejs.org/)
-- **MySQL**: Tải [MySQL Community Server](https://dev.mysql.com/downloads/mysql/) và [MySQL Workbench](https://dev.mysql.com/downloads/workbench/)
-- **Android Studio**: Tải từ [Android Studio](https://developer.android.com/studio) và tạo máy ảo android
+- **MySQL**: Tải [MySQL Community Server](https://dev.mysql.com/downloads/mysql/) và [MySQL Workbench](https://dev.mysql.com/downloads/workbench/). Tham khảo cách cài đặt tại: https://www.youtube.com/watch?v=dq1L1Lrbg6s
+- **Android Studio**: Tải từ [Android Studio](https://developer.android.com/studio) và tạo máy ảo android. Tham khảo cách cài đặt tại: https://www.youtube.com/watch?v=QgavP9yBceQ
 -  **Expo CLI**: Để cài đặt Expo CLI, chạy lệnh:
   ```bash
   npm install -g expo-cli
