@@ -1,5 +1,5 @@
 # Wine Managemen App
-Dự án này gồm 2 phần chính: **Frontend** (sử dụng React Native - Expo) và ** Backend ** (sử dụng NodeJs và mySQL)
+Dự án này gồm 2 phần chính: **Frontend** (sử dụng React Native - Expo) và **Backend** (sử dụng NodeJs và mySQL)
 
 ## Yêu cầu cài đặt
 Để có thể chạy được dự án, bạn cần cài đặt:
