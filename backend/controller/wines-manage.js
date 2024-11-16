@@ -90,89 +90,67 @@ const insertWine = async (req, res) => {
   }
 };
 
-// const updateWine = async (req, res) => {
-//   const { wine_code, wine_name, alcohol_percentage, age, country_code } =
-//     req.body;
-
-//   let imagePath = req.file ? req.file.filename : null;
-
-//   if (
-//     !wine_code ||
-//     !wine_name ||
-//     !alcohol_percentage ||
-//     !age ||
-//     !country_code ||
-//     !imagePath
-//   ) {
-//     return res.status(400).json({ message: "All fields are required" });
-//   }
-
-//   imagePath = "http://localhost:5000/images/" + imagePath;
-
-//   try {
-//     const [rows] = await connection.execute(
-//       "SELECT Image FROM Wines WHERE WineCode = ?",
-//       [wine_code]
-//     );
-
-//     if (rows.length > 0) {
-//       let imagePath = rows[0].Image;
-
-//       // Remove the base URL from the image path
-//       imagePath = imagePath.replace("http://localhost:5000/images/", "");
-
-//       // Delete the image file
-//       if (imagePath) {
-//         deleteImage(`../images/${imagePath}`);
-//         console.log("Delete image successfully");
-//       }
-//     } else {
-//       console.log("Image not found");
-//     }
-//   } catch (error) {
-//     console.error("Error in image deletion:", error);
-//   }
-
-//   try {
-//     const [results] = await connection.execute(
-//       "UPDATE `Wines` SET `WineName` = ?, `AlcoholPercentage` = ?, `Age` = ?, `CountryCode` = ?, `Image` = ? WHERE `WineCode` = ?",
-//       [wine_name, alcohol_percentage, age, country_code, imagePath, wine_code] // Ensure `wine_code` is included in WHERE clause
-//     );
-
-//     if (results.affectedRows > 0) {
-//       return res.status(200).json({ message: "Update successful" });
-//     } else {
-//       return res.status(404).json({ message: "Wine not found" });
-//     }
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ message: "Error updating data", error: error.message });
-//   }
-// };
-
 const updateWine = async (req, res) => {
   const { wine_code, wine_name, alcohol_percentage, age, country_code } =
     req.body;
 
+  let imagePath = req.file ? req.file.filename : null;
+
+  if (
+    !wine_code ||
+    !wine_name ||
+    !alcohol_percentage ||
+    !age ||
+    !country_code ||
+    !imagePath
+  ) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  imagePath = "http://localhost:5000/images/" + imagePath;
+
+  try {
+    const [rows] = await connection.execute(
+      "SELECT Image FROM Wines WHERE WineCode = ?",
+      [wine_code]
+    );
+
+    if (rows.length > 0) {
+      let imagePath = rows[0].Image;
+
+      // Remove the base URL from the image path
+      imagePath = imagePath.replace("http://localhost:5000/images/", "");
+
+      // Delete the image file
+      if (imagePath) {
+        deleteImage(`../images/${imagePath}`);
+        console.log("Delete image successfully");
+      }
+    } else {
+      console.log("Image not found");
+    }
+  } catch (error) {
+    console.error("Error in image deletion:", error);
+  }
+
   try {
     const [results] = await connection.execute(
-      'UPDATE `Wines` SET `WineName` = ?, `AlcoholPercentage` = ?, `Age` = ?, `CountryCode` = ? WHERE `WineCode` = ?',
-      [wine_name, alcohol_percentage, age, country_code, wine_code] // Ensure `wine_code` is included in WHERE clause
+      "UPDATE `Wines` SET `WineName` = ?, `AlcoholPercentage` = ?, `Age` = ?, `CountryCode` = ?, `Image` = ? WHERE `WineCode` = ?",
+      [wine_name, alcohol_percentage, age, country_code, imagePath, wine_code] // Ensure `wine_code` is included in WHERE clause
     );
+
     if (results.affectedRows > 0) {
-      return res.status(200).json({ message: 'Update successful' });
+      return res.status(200).json({ message: "Update successful" });
     } else {
-      return res.status(404).json({ message: 'Wine not found' });
+      return res.status(404).json({ message: "Wine not found" });
     }
   } catch (error) {
     res
       .status(500)
-      .json({ message: 'Error updating data', error: error.message });
+      .json({ message: "Error updating data", error: error.message });
   }
 };
 
-// Function to delete image from folder
 function deleteImage(imagePath) {
   const fullPath = path.resolve(__dirname, imagePath);
 

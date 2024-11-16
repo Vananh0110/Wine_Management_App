@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   label: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     marginBottom: 5,
     color: '#333',
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 15,
-    fontSize: 16,
+    fontSize: 14,
   },
   descriptionInput: {
     height: 100,
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingTop: 10,
     textAlignVertical: 'top',
-    fontSize: 16,
+    fontSize: 14,
     marginBottom: 15,
   },
   saveButton: {
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     paddingLeft: 20,
     paddingRight: 20,
-    borderRadius: 8
+    borderRadius: 8,
   },
   picker: {
     borderWidth: 1,
@@ -243,6 +243,12 @@ const styles = StyleSheet.create({
   saveFormButton: {
     marginTop: 20,
     backgroundColor: '#1FAB89',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: -10,
+    marginBottom: 10,
   },
 });
 

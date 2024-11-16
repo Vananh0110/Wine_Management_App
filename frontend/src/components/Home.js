@@ -33,7 +33,8 @@ function Home() {
     CountryCode: '',
   });
   const [selectedImage, setSelectedImage] = useState(null);
-
+  const [errors, setErrors] = useState({});
+  const [addErrors, setAddErrors] = useState({});
   const fetchWineData = async () => {
     try {
       const response = await axios.get('/get-wines');
@@ -76,7 +77,68 @@ function Home() {
     }
   };
 
+  const validateEditFields = () => {
+    const newErrors = {};
+
+    if (!selectedWine?.WineName?.trim())
+      newErrors.WineName = 'Name is required.';
+    if (
+      !selectedWine?.AlcoholPercentage ||
+      isNaN(selectedWine.AlcoholPercentage)
+    )
+      newErrors.AlcoholPercentage = 'Alcohol percentage must be a number.';
+    if (!selectedWine?.Age || isNaN(selectedWine.Age))
+      newErrors.Age = 'Age must be a number.';
+    if (!selectedWine?.CountryCode)
+      newErrors.CountryCode = 'Country code is required.';
+    if (!selectedImage) newErrors.Image = 'An image must be selected.';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateAddFields = () => {
+    const newErrors = {};
+
+    if (!newWineData?.WineCode?.trim()) {
+      newErrors.WineCode = 'Wine code is required.';
+    } else if (
+      wineData.some(
+        (wine) =>
+          wine.WineCode.toLowerCase() === newWineData.WineCode.toLowerCase()
+      )
+    ) {
+      newErrors.WineCode = 'Wine code must be unique.';
+    }
+
+    if (!newWineData?.WineName?.trim())
+      newErrors.WineName = 'Wine name is required.';
+    if (
+      !newWineData?.AlcoholPercentage ||
+      isNaN(newWineData.AlcoholPercentage)
+    ) {
+      newErrors.AlcoholPercentage = 'Alcohol percentage must be a number.';
+    }
+    if (!newWineData?.Age || isNaN(newWineData.Age)) {
+      newErrors.Age = 'Age must be a number.';
+    }
+    if (!newWineData?.CountryCode) {
+      newErrors.CountryCode = 'Country code is required.';
+    }
+    if (!selectedImage) {
+      newErrors.Image = 'An image must be selected.';
+    }
+
+    setAddErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = async () => {
+    if (!validateAddFields()) {
+      Alert.alert('Validation Error', 'Please fix the errors before saving.');
+      return;
+    }
     if (
       !newWineData.WineCode ||
       !newWineData.WineName ||
@@ -131,18 +193,56 @@ function Home() {
   };
 
   const saveEdit = async () => {
+    if (!validateEditFields()) {
+      Alert.alert('Validation Error', 'Please fix the errors before saving.');
+      return;
+    }
+
+    if (
+      !selectedWine?.WineName ||
+      !selectedWine?.AlcoholPercentage ||
+      !selectedWine?.Age ||
+      !selectedWine?.CountryCode
+    ) {
+      Alert.alert('Error', 'All fields are required, including an image');
+      return;
+    }
+
     try {
-      await axios.put('/update-wine', {
-        wine_code: selectedWine.WineCode,
-        wine_name: selectedWine.WineName,
-        alcohol_percentage: selectedWine.AlcoholPercentage,
-        age: selectedWine.Age,
-        country_code: selectedWine.CountryCode,
+      setLoading(true);
+      const formData = new FormData();
+
+      formData.append('wine_code', selectedWine.WineCode);
+      formData.append('wine_name', selectedWine.WineName);
+      formData.append('alcohol_percentage', selectedWine.AlcoholPercentage);
+      formData.append('age', selectedWine.Age);
+      formData.append('country_code', selectedWine.CountryCode);
+
+      if (selectedImage) {
+        const imageResponse = await fetch(selectedImage.uri);
+        const blob = await imageResponse.blob();
+        formData.append('image', blob, selectedImage.name);
+      }
+
+      const response = await fetch('http://localhost:5000/update-wine', {
+        method: 'PUT',
+        body: formData,
       });
-      fetchWineData();
-      setIsEditModalVisible(false);
+
+      const result = await response.json();
+      if (response.ok) {
+        Alert.alert('Success', 'Wine updated successfully');
+        setIsEditModalVisible(false);
+        fetchWineData();
+      } else {
+        console.error('Error:', result);
+        Alert.alert('Error', result.message || 'Could not update wine');
+      }
     } catch (error) {
       console.error('Error updating wine:', error);
+      Alert.alert('Error', 'Could not update wine');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -301,6 +401,9 @@ function Home() {
             }
             style={styles.input}
           />
+          {errors.WineName && (
+            <Text style={styles.errorText}>{errors.WineName}</Text>
+          )}
           <Text style={styles.label}>Alcohol Percentage</Text>
           <TextInput
             placeholder="Alcohol Percentage"
@@ -311,6 +414,9 @@ function Home() {
             style={styles.input}
             keyboardType="numeric"
           />
+          {errors.AlcoholPercentage && (
+            <Text style={styles.errorText}>{errors.AlcoholPercentage}</Text>
+          )}
           <Text style={styles.label}>Age</Text>
           <TextInput
             placeholder="Age"
@@ -321,6 +427,7 @@ function Home() {
             style={styles.input}
             keyboardType="numeric"
           />
+          {errors.Age && <Text style={styles.errorText}>{errors.Age}</Text>}
           <Text style={styles.label}>Country Code</Text>
           <Picker
             selectedValue={selectedWine?.CountryCode}
@@ -338,7 +445,35 @@ function Home() {
               />
             ))}
           </Picker>
-          <Button mode="contained" onPress={saveEdit} style={styles.saveButton}>
+          {errors.CountryCode && (
+            <Text style={styles.errorText}>{errors.CountryCode}</Text>
+          )}
+          <Button
+            mode="outlined"
+            icon="camera"
+            textColor="black"
+            onPress={handleImagePicker}
+            style={{
+              borderColor: '#1FAB89',
+              borderWidth: 1,
+              marginBottom: 10,
+            }}
+          >
+            Choose Image
+          </Button>
+          {selectedImage && (
+            <Image
+              source={{ uri: selectedImage.uri }}
+              style={styles.imagePreview}
+            />
+          )}
+          {errors.Image && <Text style={styles.errorText}>{errors.Image}</Text>}
+
+          <Button
+            mode="contained"
+            onPress={saveEdit}
+            style={styles.saveFormButton}
+          >
             Save Changes
           </Button>
         </Modal>
@@ -367,6 +502,9 @@ function Home() {
               setNewWineData((prev) => ({ ...prev, WineCode: text }))
             }
           />
+          {addErrors.WineCode && (
+            <Text style={styles.errorText}>{addErrors.WineCode}</Text>
+          )}
           <TextInput
             style={styles.input}
             placeholder="Enter wine name"
@@ -384,6 +522,9 @@ function Home() {
               setNewWineData((prev) => ({ ...prev, AlcoholPercentage: text }))
             }
           />
+          {addErrors.AlcoholPercentage && (
+            <Text style={styles.errorText}>{addErrors.AlcoholPercentage}</Text>
+          )}
           <TextInput
             style={styles.input}
             placeholder="Enter age"
@@ -393,6 +534,9 @@ function Home() {
               setNewWineData((prev) => ({ ...prev, Age: text }))
             }
           />
+          {addErrors.Age && (
+            <Text style={styles.errorText}>{addErrors.Age}</Text>
+          )}
           <Picker
             selectedValue={newWineData.CountryCode}
             onValueChange={(value) =>
@@ -409,6 +553,9 @@ function Home() {
               />
             ))}
           </Picker>
+          {addErrors.CountryCode && (
+            <Text style={styles.errorText}>{addErrors.CountryCode}</Text>
+          )}
           <Button
             mode="outlined"
             icon="camera"
@@ -426,6 +573,9 @@ function Home() {
               source={{ uri: selectedImage.uri }}
               style={styles.imagePreview}
             />
+          )}
+          {addErrors.Image && (
+            <Text style={styles.errorText}>{addErrors.Image}</Text>
           )}
           <Button
             mode="contained"

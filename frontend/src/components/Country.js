@@ -12,7 +12,6 @@ import {
 } from 'react-native-paper';
 import styles from '../assets/styles/styles';
 import axios from '../assets/api/axios';
-import AddCountryModal from './AddCountryModal';
 
 function Country() {
   const [countries, setCountries] = useState([]);
@@ -35,6 +34,8 @@ function Country() {
   const searchBarWidth = useState(new Animated.Value(0))[0];
   const [page, setPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(6);
+  const [addErrors, setAddErrors] = useState({});
+  const [editErrors, setEditErrors] = useState({});
 
   const from = page * itemsPerPage;
   const to = Math.min((page + 1) * itemsPerPage, filteredCountries.length);
@@ -87,7 +88,55 @@ function Country() {
     }
   };
 
+  const validateAddFields = () => {
+    const errors = {};
+
+    if (!newCountry.code.trim()) {
+      errors.code = 'Country code is required.';
+    } else if (
+      countries.some(
+        (country) =>
+          country.CountryCode.toLowerCase() === newCountry.code.toLowerCase()
+      )
+    ) {
+      errors.code = 'Country code must be unique.';
+    }
+
+    if (!newCountry.name.trim()) {
+      errors.name = 'Country name is required.';
+    }
+
+    if (!newCountry.description.trim()) {
+      errors.description = 'Description is required.';
+    }
+
+    setAddErrors(errors);
+
+    return Object.keys(errors).length === 0;
+  };
+
+  const validateEditFields = () => {
+    const errors = {};
+
+    if (!selectedCountry.CountryName.trim()) {
+      errors.name = 'Country name is required.';
+    }
+
+    if (!selectedCountry.Description.trim()) {
+      errors.description = 'Description is required.';
+    }
+
+    setEditErrors(errors);
+
+    return Object.keys(errors).length === 0;
+  };
+
   const addCountry = async () => {
+    if (!validateAddFields()) {
+      Alert.alert('Validation Error', 'Please fix the errors before saving.');
+      return;
+    }
+
     try {
       const response = await axios.post('/insert-country', {
         country_code: newCountry.code,
@@ -122,6 +171,11 @@ function Country() {
   };
 
   const editCountry = async () => {
+    if (!validateEditFields()) {
+      Alert.alert('Validation Error', 'Please fix the errors before saving.');
+      return;
+    }
+
     try {
       const response = await axios.put('/update-country', {
         country_code: selectedCountry.CountryCode,
@@ -188,13 +242,75 @@ function Country() {
           style={styles.addButton}
         />
       </View>
-      <AddCountryModal
-        visible={isModalVisible}
-        onDismiss={() => setIsModalVisible(false)}
-        onSave={addCountry}
-        newCountry={newCountry}
-        setNewCountry={setNewCountry}
-      />
+
+      {/* Add New Country */}
+      <Portal>
+        <Modal
+          visible={isModalVisible}
+          onDismiss={() => setIsModalVisible(false)}
+          contentContainerStyle={styles.modalContainer}
+        >
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Add New Country</Text>
+            <IconButton
+              icon="close"
+              size={24}
+              onPress={() => setIsModalVisible(false)}
+              style={styles.closeIcon}
+            />
+          </View>
+
+          <Text style={styles.label}>Country Code</Text>
+          <TextInput
+            placeholder="Enter country code"
+            placeholderTextColor="gray"
+            value={newCountry.code}
+            onChangeText={(text) =>
+              setNewCountry((prev) => ({ ...prev, code: text }))
+            }
+            style={styles.input}
+          />
+          {addErrors.code && (
+            <Text style={styles.errorText}>{addErrors.code}</Text>
+          )}
+          <Text style={styles.label}>Country Name</Text>
+          <TextInput
+            placeholder="Enter country name"
+            placeholderTextColor="gray"
+            value={newCountry.name}
+            onChangeText={(text) =>
+              setNewCountry((prev) => ({ ...prev, name: text }))
+            }
+            style={styles.input}
+          />
+          {addErrors.name && (
+            <Text style={styles.errorText}>{addErrors.name}</Text>
+          )}
+          <Text style={styles.label}>Description</Text>
+          <TextInput
+            placeholder="Enter description"
+            placeholderTextColor="gray"
+            value={newCountry.description}
+            onChangeText={(text) =>
+              setNewCountry((prev) => ({ ...prev, description: text }))
+            }
+            style={styles.descriptionInput}
+            multiline={true}
+            numberOfLines={4}
+          />
+          {addErrors.description && (
+            <Text style={styles.errorText}>{addErrors.description}</Text>
+          )}
+          <Button
+            mode="contained"
+            onPress={addCountry}
+            style={styles.saveButton}
+          >
+            Save
+          </Button>
+        </Modal>
+      </Portal>
+
       <View style={styles.tableContainer}>
         <DataTable>
           <DataTable.Header>
@@ -235,6 +351,7 @@ function Country() {
         </DataTable>
       </View>
 
+      {/* Action Modal */}
       <Portal>
         <Modal
           visible={isModalActionVisible && !!selectedCountry}
@@ -288,6 +405,7 @@ function Country() {
         </Modal>
       </Portal>
 
+      {/* Edit Country Modal */}
       <Portal>
         <Modal
           visible={isEditModalVisible}
@@ -312,6 +430,9 @@ function Country() {
               }
               style={styles.input}
             />
+            {editErrors.name && (
+              <Text style={styles.errorText}>{editErrors.name}</Text>
+            )}
             <Text style={styles.label}>Description</Text>
             <TextInput
               value={selectedCountry?.Description}
@@ -322,6 +443,9 @@ function Country() {
               multiline={true}
               numberOfLines={4}
             />
+            {editErrors.description && (
+              <Text style={styles.errorText}>{editErrors.description}</Text>
+            )}
             <Button
               mode="contained"
               onPress={editCountry}
@@ -344,23 +468,23 @@ function Country() {
             <Text>Are you sure you want to delete this country?</Text>
 
             <View style={styles.modalButton}>
-            <Button
-              mode="contained"
-              onPress={deleteCountry}
-              buttonColor="red"
-              textColor="#FFFFFF"
-              style={styles.deleteButton}
-            >
-              Yes, Delete
-            </Button>
-            <Button
-              mode="outlined"
-              onPress={() => setIsDeleteModalVisible(false)}
-              style={styles.cancelButton}
-              textColor="#000000"
-            >
-              Cancel
-            </Button>
+              <Button
+                mode="contained"
+                onPress={deleteCountry}
+                buttonColor="red"
+                textColor="#FFFFFF"
+                style={styles.deleteButton}
+              >
+                Yes, Delete
+              </Button>
+              <Button
+                mode="outlined"
+                onPress={() => setIsDeleteModalVisible(false)}
+                style={styles.cancelButton}
+                textColor="#000000"
+              >
+                Cancel
+              </Button>
             </View>
           </View>
         </Modal>
