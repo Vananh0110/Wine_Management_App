@@ -14,6 +14,7 @@ import { Picker } from '@react-native-picker/picker';
 import styles from '../assets/styles/styles';
 import axios from '../assets/api/axios';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 
 function Home() {
   const [wineData, setWineData] = useState([]);
@@ -136,56 +137,54 @@ function Home() {
   };
 
   const handleSave = async () => {
-    if (!validateAddFields()) {
-      Alert.alert('Validation Error', 'Please fix the errors before saving.');
-      return;
-    }
-    if (
-      !newWineData.WineCode ||
-      !newWineData.WineName ||
-      !newWineData.AlcoholPercentage ||
-      !newWineData.Age ||
-      !newWineData.CountryCode ||
-      !selectedImage
-    ) {
-      Alert.alert('Error', 'All fields are required');
-      return;
-    }
-
     try {
-      setLoading(true);
-      const imageResponse = await fetch(selectedImage.uri);
-      const blob = await imageResponse.blob();
-
+      const fileInfo = await FileSystem.getInfoAsync(selectedImage.uri);
+      if (!fileInfo.exists) {
+        console.error("File doesn't exist!");
+        return;
+      }
+  
       const formData = new FormData();
       formData.append('wine_code', newWineData.WineCode);
       formData.append('wine_name', newWineData.WineName);
       formData.append('alcohol_percentage', newWineData.AlcoholPercentage);
       formData.append('age', newWineData.Age);
       formData.append('country_code', newWineData.CountryCode);
-      formData.append('image', blob, selectedImage.uri.split('/').pop());
-
+  
+      const fileName = selectedImage.uri.split('/').pop();
+      const fileType = fileName.split('.').pop();
+  
+      formData.append('image', {
+        uri: selectedImage.uri,
+        name: fileName,
+        type: `image/${fileType}`,
+      });
+  
       const uploadResponse = await fetch('http://localhost:5000/insert-wine', {
         method: 'POST',
         body: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
-
+  
       const result = await uploadResponse.json();
-
+      console.log('Server response:', result);
       if (uploadResponse.ok) {
-        Alert.alert('Success', 'Wine added successfully');
-        setIsAddWineModalVisible(false);
-        fetchWineData();
-      } else {
-        console.error('Error:', result);
-        Alert.alert('Error', result.message || 'Could not add wine');
-      }
-    } catch (error) {
-      console.error('Error adding wine:', error);
-      Alert.alert('Error', 'Could not add wine');
-    } finally {
-      setLoading(false);
-    }
+              Alert.alert('Success', 'Wine added successfully');
+              setIsAddWineModalVisible(false);
+              fetchWineData();
+            } else {
+              console.error('Error:', result);
+              Alert.alert('Error', result.message || 'Could not add wine');
+            }
+          } catch (error) {
+            console.error('Error adding wine:', error);
+            Alert.alert('Error', 'Could not add wine');
+          } finally {
+            setLoading(false);
+          }
+    
   };
 
   const handleEdit = (wine) => {
@@ -228,11 +227,24 @@ function Home() {
       formData.append('age', selectedWine.Age);
       formData.append('country_code', selectedWine.CountryCode);
 
-      if (selectedImage?.uri !== selectedWine.Image) {
-        const imageResponse = await fetch(selectedImage.uri);
-        const blob = await imageResponse.blob();
-        formData.append('image', blob, selectedImage.name);
+      if (selectedImage && selectedImage.uri !== selectedWine.Image) {
+        const fileInfo = await FileSystem.getInfoAsync(selectedImage.uri);
+        if (!fileInfo.exists) {
+          console.error("Selected image doesn't exist!");
+          Alert.alert('Error', 'Selected image does not exist');
+          return;
+        }
+  
+        const fileName = selectedImage.uri.split('/').pop();
+        const fileType = fileName.split('.').pop();
+  
+        formData.append('image', {
+          uri: selectedImage.uri,
+          name: `${Date.now()}-${fileName}`, 
+          type: `image/${fileType}`,
+        });
       }
+  
 
       const response = await fetch('http://localhost:5000/update-wine', {
         method: 'PUT',

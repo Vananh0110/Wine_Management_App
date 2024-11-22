@@ -5,23 +5,21 @@ const fs = require('fs');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../images'));
+    const uploadPath = path.join(__dirname, '../images');
+    fs.mkdirSync(uploadPath, { recursive: true });
+    cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    // Lấy tên gốc của ảnh mà không có phần mở rộng
-    const originalName = path.parse(file.originalname).name;
-    // Tạo một chuỗi ngẫu nhiên để thêm vào tên gốc
-    const uniqueSuffix = '-' + Math.round(Math.random() * 1e9);
-    // Tạo tên tệp mới với tên gốc + số ngẫu nhiên + phần mở rộng gốc
-    cb(null, originalName + uniqueSuffix + path.extname(file.originalname));
-    //cb(null, originalName + path.extname(file.originalname));
+    const uniqueSuffix = '-' + Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const fileExtension = path.extname(file.originalname);
+    const fileName = path.parse(file.originalname).name + uniqueSuffix + fileExtension;
+    cb(null, fileName);
   },
 });
 
 const upload = multer({ storage });
 
 const getWines = async (req, res) => {
-  // A simple SELECT query
   try {
     const [results, fields] = await connection.query('SELECT * FROM `Wines` ');
 
@@ -48,9 +46,7 @@ const insertWine = async (req, res) => {
     country_code,
   });
   console.log('Received Image Path:', imagePath);
-  console.log('Full File Data:', req);
 
-  // Kiểm tra nếu bất kỳ trường nào bị thiếu
   if (
     !wine_code ||
     !wine_name ||
@@ -63,7 +59,6 @@ const insertWine = async (req, res) => {
   }
   imagePath = 'http://localhost:5000/images/' + imagePath;
   try {
-    // Thực hiện câu lệnh INSERT
     const [results] = await connection.execute(
       'INSERT INTO Wines (WineCode, WineName, AlcoholPercentage, Age, CountryCode, Image) VALUES (?, ?, ?, ?, ?, ?)',
       [wine_code, wine_name, alcohol_percentage, age, country_code, imagePath]
@@ -101,7 +96,6 @@ const updateWine = async (req, res) => {
   }
 
   try {
-    // Nếu không có ảnh mới, lấy ảnh cũ từ cơ sở dữ liệu
     if (!imagePath) {
       const [rows] = await connection.execute(
         "SELECT Image FROM Wines WHERE WineCode = ?",
