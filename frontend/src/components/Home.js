@@ -91,8 +91,9 @@ function Home() {
       newErrors.Age = 'Age must be a number.';
     if (!selectedWine?.CountryCode)
       newErrors.CountryCode = 'Country code is required.';
-    if (!selectedImage) newErrors.Image = 'An image must be selected.';
-
+    if (!selectedImage && !selectedWine?.Image) {
+      newErrors.Image = 'An image must be selected.';
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -189,6 +190,15 @@ function Home() {
 
   const handleEdit = (wine) => {
     setSelectedWine(wine);
+    setSelectedImage(
+      wine.Image
+        ? {
+            uri: wine.Image,
+            name: wine.Image.split('/').pop(),
+            type: 'image/jpeg',
+          }
+        : null
+    );
     setIsEditModalVisible(true);
   };
 
@@ -218,7 +228,7 @@ function Home() {
       formData.append('age', selectedWine.Age);
       formData.append('country_code', selectedWine.CountryCode);
 
-      if (selectedImage) {
+      if (selectedImage?.uri !== selectedWine.Image) {
         const imageResponse = await fetch(selectedImage.uri);
         const blob = await imageResponse.blob();
         formData.append('image', blob, selectedImage.name);
@@ -482,7 +492,18 @@ function Home() {
       <FAB
         style={styles.fab}
         icon="plus"
-        onPress={() => setIsAddWineModalVisible(true)}
+        onPress={() => {
+          setIsAddWineModalVisible(true);
+          setNewWineData({
+            WineCode: '',
+            WineName: '',
+            AlcoholPercentage: '',
+            Age: '',
+            CountryCode: '',
+          });
+          setSelectedImage(null);
+
+        }}
         color="white"
       />
 

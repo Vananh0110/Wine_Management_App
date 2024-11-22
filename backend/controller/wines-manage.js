@@ -96,47 +96,56 @@ const updateWine = async (req, res) => {
 
   let imagePath = req.file ? req.file.filename : null;
 
-  if (
-    !wine_code ||
-    !wine_name ||
-    !alcohol_percentage ||
-    !age ||
-    !country_code ||
-    !imagePath
-  ) {
-    return res.status(400).json({ message: "All fields are required" });
+  if (!wine_code || !wine_name || !alcohol_percentage || !age || !country_code) {
+    return res.status(400).json({ message: "All fields except image are required" });
   }
 
-  imagePath = "http://localhost:5000/images/" + imagePath;
-
   try {
-    const [rows] = await connection.execute(
-      "SELECT Image FROM Wines WHERE WineCode = ?",
-      [wine_code]
-    );
+    // Nếu không có ảnh mới, lấy ảnh cũ từ cơ sở dữ liệu
+    if (!imagePath) {
+      const [rows] = await connection.execute(
+        "SELECT Image FROM Wines WHERE WineCode = ?",
+        [wine_code]
+      );
 
-    if (rows.length > 0) {
-      let imagePath = rows[0].Image;
-
-      // Remove the base URL from the image path
-      imagePath = imagePath.replace("http://localhost:5000/images/", "");
-
-      // Delete the image file
-      if (imagePath) {
-        deleteImage(`../images/${imagePath}`);
-        console.log("Delete image successfully");
+      if (rows.length > 0) {
+        imagePath = rows[0].Image; // Lấy URL ảnh cũ
+      } else {
+        return res.status(404).json({ message: "Wine not found" });
       }
     } else {
-      console.log("Image not found");
-    }
-  } catch (error) {
-    console.error("Error in image deletion:", error);
-  }
+      // Nếu có ảnh mới, cần xóa ảnh cũ
+      const [rows] = await connection.execute(
+        "SELECT Image FROM Wines WHERE WineCode = ?",
+        [wine_code]
+      );
 
-  try {
+      if (rows.length > 0) {
+        let oldImagePath = rows[0].Image;
+
+        // Loại bỏ phần URL cơ sở trước khi xóa file
+        oldImagePath = oldImagePath.replace(
+          "http://localhost:5000/images/",
+          ""
+        );
+
+        // Xóa file ảnh cũ
+        if (oldImagePath) {
+          deleteImage(`../images/${oldImagePath}`);
+          console.log("Deleted old image successfully");
+        }
+      }
+    }
+
+    // Gán URL đầy đủ cho ảnh mới
+    if (req.file) {
+      imagePath = "http://localhost:5000/images/" + imagePath;
+    }
+
+    // Cập nhật dữ liệu trong cơ sở dữ liệu
     const [results] = await connection.execute(
       "UPDATE `Wines` SET `WineName` = ?, `AlcoholPercentage` = ?, `Age` = ?, `CountryCode` = ?, `Image` = ? WHERE `WineCode` = ?",
-      [wine_name, alcohol_percentage, age, country_code, imagePath, wine_code] // Ensure `wine_code` is included in WHERE clause
+      [wine_name, alcohol_percentage, age, country_code, imagePath, wine_code]
     );
 
     if (results.affectedRows > 0) {
@@ -145,11 +154,11 @@ const updateWine = async (req, res) => {
       return res.status(404).json({ message: "Wine not found" });
     }
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating data", error: error.message });
+    console.error("Error in updateWine:", error);
+    res.status(500).json({ message: "Error updating data", error: error.message });
   }
 };
+
 
 function deleteImage(imagePath) {
   const fullPath = path.resolve(__dirname, imagePath);

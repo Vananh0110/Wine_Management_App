@@ -250,6 +250,20 @@ const styles = StyleSheet.create({
     marginTop: -10,
     marginBottom: 10,
   },
+  adjustButton: {
+    marginHorizontal: 5,
+    borderColor: '#1FAB89',
+    borderWidth: 1,
+    borderRadius: 10,
+  },
+  adjustButtonText: {
+    fontSize: 40,
+    fontWeight: 'bold',
+    color: '#1FAB89',
+  },
+  inputSearch: {
+    backgroundColor: 'rgb(249 249 249);'
+  }
 });
 
 export default styles;
