@@ -36,7 +36,7 @@ Dự án này gồm 2 phần chính: **Frontend** (sử dụng React Native - Ex
    ```
    - Chạy server
    ```bash
-   nodemon index
+   node index.js
    ```
    
 4. **Chạy frontend**
